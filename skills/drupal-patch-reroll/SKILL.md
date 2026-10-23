@@ -97,7 +97,7 @@ If no upstream patch applies cleanly to the target version:
    - Ensure only intended changes are included (no extraneous whitespace or formatting churn).
    - Export the clean `-p1` patch to the project's `patches/` directory:
      ```bash
-     git diff > /Users/vijay/Sites/<project>/patches/contrib/<module>-<issue_number>-<short_description>-<version>.patch
+     git diff > /path/to/project/patches/contrib/<module>-<issue_number>-<short_description>-<version>.patch
      ```
    - Reset the contrib directory so composer can manage it cleanly:
      ```bash
@@ -107,23 +107,38 @@ If no upstream patch applies cleanly to the target version:
 
 ---
 
-## 5. Update `composer.json` and Verify
+## 5. Update `composer.json` (v1 and v2 Plugin Syntax)
 
-1. Point `composer.json` to the local patch or new remote URL:
-   ```json
-   "extra": {
-       "patches": {
-           "drupal/<module>": {
-               "Issue #<issue-number>: <description>": "patches/contrib/<module>-<issue_number>-<description>.patch"
-           }
-       }
-   }
-   ```
-2. Run Composer:
-   ```bash
-   ddev composer install
-   ```
-3. Run tests or deploy checks to confirm functionality:
-   ```bash
-   ddev drush deploy -y
-   ```
+Update your composer patch configuration depending on your `cweagans/composer-patches` version:
+
+### Composer Patches v1 Format:
+```json
+"extra": {
+    "patches": {
+        "drupal/<module>": {
+            "Issue #<issue-number>: <description>": "patches/contrib/<module>-<issue_number>-<description>.patch"
+        }
+    }
+}
+```
+
+### Composer Patches v2 Format (`patches.json` or inline):
+```json
+"extra": {
+    "patches": {
+        "drupal/<module>": [
+            {
+                "description": "Issue #<issue-number>: <description>",
+                "url": "patches/contrib/<module>-<issue_number>-<description>.patch"
+            }
+        ]
+    }
+}
+```
+
+### Verification
+Run Composer to verify the rerolled patch applies cleanly:
+```bash
+ddev composer install
+ddev drush deploy -y
+```

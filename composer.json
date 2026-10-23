@@ -1,0 +1,21 @@
+{
+    "name": "vijaycs85/drupal-contrib-skills",
+    "description": "Curated collection of AI agent skills for Drupal Core and Contrib development, testing, security, and project governance.",
+    "keywords": ["drupal", "ai", "agent", "skills", "composer", "ai-best-practices"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Vijay",
+            "homepage": "https://www.drupal.org/u/vijaycs85"
+        }
+    ],
+    "require": {
+        "php": ">=8.1"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "1.0.x-dev"
+        }
+    }
+}

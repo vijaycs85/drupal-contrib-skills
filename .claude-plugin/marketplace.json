@@ -1,12 +1,12 @@
 {
   "name": "drupal-contrib-skills",
   "owner": "vijaycs85",
-  "description": "Curated AI agent skills for Drupal Core and Contrib development, issue handling, testing, and patch maintenance.",
+  "description": "Comprehensive suite of AI agent skills for Drupal Core, Contrib modules, themes, recipes, issue handling, testing, security, and project governance.",
   "plugins": [
     {
       "name": "drupal-core-issue",
       "path": "./skills/drupal-core-issue",
-      "description": "Resolve and review Drupal Core issues, work with issue forks, run DDEV/PHPUnit tests, and format drupal.org issue comments.",
+      "description": "Resolve and review Drupal Core issues, work with issue forks, run DDEV/PHPUnit tests, Conventional Commits with By: trailers, and format drupal.org issue comments.",
       "group": "core"
     },
     {
@@ -18,14 +18,56 @@
     {
       "name": "drupal-standards",
       "path": "./skills/drupal-standards",
-      "description": "Enforce Drupal coding standards (PHPCS Drupal/DrupalPractice), PHPStan static analysis, and Drupal architectural patterns.",
+      "description": "Enforce Drupal coding standards (PHPCS Drupal/DrupalPractice), PHPStan static analysis, PHP 8 #[Hook] and plugin attributes, and strict config schemas.",
       "group": "standards"
     },
     {
       "name": "drupal-patch-reroll",
       "path": "./skills/drupal-patch-reroll",
-      "description": "Audit, fix, and reroll Drupal composer patches, discover GitLab MR diffs, and resolve reject files.",
+      "description": "Audit, fix, and reroll Drupal composer patches (v1 & v2), discover GitLab MR diffs, and resolve reject files.",
       "group": "maintenance"
+    },
+    {
+      "name": "drupal-new-project",
+      "path": "./skills/drupal-new-project",
+      "description": "Scaffold and launch new Drupal modules, themes, starterkits, and recipes adhering to Drupal.org naming rules, mandatory files, and Git branches.",
+      "group": "contrib"
+    },
+    {
+      "name": "drupal-security-optin",
+      "path": "./skills/drupal-security-optin",
+      "description": "Audit code for SQLi, XSS, CSRF, and accessCheck requirements to pass the Drupal.org Security Advisory (SA) Coverage review.",
+      "group": "maintainer"
+    },
+    {
+      "name": "drupal-release-management",
+      "path": "./skills/drupal-release-management",
+      "description": "Manage semantic versioning releases, release branches, Git tags, release notes, and coordinated Security Advisory releases.",
+      "group": "maintainer"
+    },
+    {
+      "name": "drupal-project-governance",
+      "path": "./skills/drupal-project-governance",
+      "description": "Manage project governance, claim abandoned projects via the 14-day queue process, onboard co-maintainers, and migrate to GitLab issues.",
+      "group": "maintainer"
+    },
+    {
+      "name": "drupal-gitlab-ci",
+      "path": "./skills/drupal-gitlab-ci",
+      "description": "Configure, debug, and customize official Drupal Association GitLab CI/CD pipelines (.gitlab-ci.yml), test matrices, and linters.",
+      "group": "contrib"
+    },
+    {
+      "name": "drupal-recipe-authoring",
+      "path": "./skills/drupal-recipe-authoring",
+      "description": "Author, test, and package Drupal Recipes (recipe.yml) using the Config Actions API, module dependencies, and demo content.",
+      "group": "recipes"
+    },
+    {
+      "name": "drupal-skills-updater",
+      "path": "./skills/drupal-skills-updater",
+      "description": "Audit, synchronize, and maintain this skill collection against Drupal Core changes, Change Records, and GitLab CI updates.",
+      "group": "meta"
     }
   ]
 }

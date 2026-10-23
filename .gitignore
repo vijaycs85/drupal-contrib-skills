@@ -2,3 +2,5 @@
 *.log
 .ddev/
 .idea/
+*.tar.gz
+/reference/

@@ -14,10 +14,10 @@ This skill guides the end-to-end process of working on, testing, and reviewing D
 When given a Drupal.org issue URL (e.g. `https://www.drupal.org/project/drupal/issues/3455853`):
 
 1. **Review Issue Details**:
-   - Issue Status: Active, Needs work, Needs review, RTBC.
-   - Target Version: `main` (Drupal 12 / next major), `11.x`, `11.4.x`, etc.
-   - Issue Summary: Problem/Motivation, Proposed resolution, Remaining tasks.
-   - Latest comments: Read recent feedback, especially reviewer notes and test bot results.
+   - **Issue Status**: Active, Needs work, Needs review, RTBC (Reviewed & tested by the community).
+   - **Target Version**: `main` (Drupal 12 / next major), `11.x`, `11.4.x`, etc. All new features target `main`; bug fixes target active minor branches.
+   - **Issue Summary**: Problem/Motivation, Proposed resolution, Remaining tasks, User interface changes, API changes.
+   - **Latest comments**: Read recent feedback, especially committer notes and test bot results.
 2. **Locate the GitLab Merge Request**:
    - Find the linked MR on `https://git.drupalcode.org/project/drupal/-/merge_requests/<mr_id>`.
    - Note the issue fork repository: `git@git.drupal.org:issue/drupal-<nid>.git`.
@@ -41,90 +41,138 @@ git fetch drupal-<nid>
 # Checkout the branch matching the MR
 git checkout -b <branch_name> drupal-<nid>/<branch_name>
 
-# Alternatively, fetch specific MR ref
+# Alternatively, fetch specific MR ref directly from origin
 git fetch origin merge-requests/<mr_id>/head:mr-<mr_id>
 git checkout mr-<mr_id>
 ```
 
-### Keeping the Branch Up-to-Date
-Core branches move fast. Always keep the issue branch synced with the merge base:
+### Keeping the Branch Up-to-Date (Rebasing against Core)
+Core moves fast. Always ensure your branch is rebased on the latest merge target before running tests or requesting RTBC:
 ```bash
-git fetch origin
-git merge origin/<target_branch>
+# Fetch latest core main branch
+git fetch origin main
+
+# Rebase your issue branch onto origin/main
+git rebase origin/main
+
+# If conflicts occur, resolve them, add the files, and continue
+git add <conflicted_file>
+git rebase --continue
+
+# Push updated commits to the issue fork (force-with-lease)
+git push --force-with-lease drupal-<nid> <branch_name>
 ```
 
 ---
 
-## 3. Environment & Testing Verification
+## 3. Core Commit Message Standards (Conventional Commits)
 
-Drupal Core development is ideally paired with **DDEV**.
+Drupal Core uses the **Conventional Commits** specification with **`By:` trailers** for credit attribution:
 
-### 1. DDEV Configuration for Core
-```bash
-# Configure for modern Drupal Core
-ddev config --project-name=drupal-core --project-type=drupal12 --docroot=. --php-version=8.5
-ddev start
-ddev composer install
+### Syntax Format
+```text
+{type}: #{issue_id} One-line concise summary of the change
+By: username1
+By: username2
 ```
 
-### 2. Code Quality & Static Analysis Checks
-Always verify before committing:
+### Supported Types:
+- `fix`: Bug fixes.
+- `feat`: New features or substantial API additions.
+- `task`: Maintenance tasks (replaces `chore`).
+- `docs`: Documentation updates.
+- `test`: Adding or refactoring automated tests.
+- `refactor`: Code changes that neither fix a bug nor add a feature.
+- `perf`: Performance improvements.
+- `ci`: Changes to CI/CD configuration.
+
+### Example:
+```text
+fix: #3489123 Prevent null pointer in entity canonical route access check
+By: alex_p
+By: catch
+By: quietone
+```
+
+> [!NOTE]
+> Git commit trailers provide human-readable repository attribution. Maintainers formally grant official Drupal.org contribution credit in the issue queue web interface when closing tickets as *Fixed*.
+
+---
+
+## 4. Quality Verification & Core Automated Testing
+
+### Static Analysis & Standards
+Always verify before pushing to the issue fork:
 ```bash
-# PHPCS (Drupal standards)
+# PHPCS (Drupal & DrupalPractice standards)
 ddev exec vendor/bin/phpcs --standard=Drupal,DrupalPractice core/path/to/modified/file.php
 
-# PHPStan (Core level)
+# PHPStan (Core baseline)
 ddev exec vendor/bin/phpstan analyze core/path/to/modified/file.php
+
+# CSpell dictionary check
+ddev exec npm --prefix core run spellcheck
 ```
 
-### 3. Running Core Automated Tests
+### Running Core Automated Tests
 Functional and Kernel tests require database and base URL environment variables:
 ```bash
-# Functional tests
+# Functional tests (browser simulation)
 ddev exec "SIMPLETEST_BASE_URL=http://localhost SIMPLETEST_DB=mysql://db:db@db/db vendor/bin/phpunit -c core core/tests/Drupal/FunctionalTests/PathToTest.php"
 
-# Kernel tests
+# Functional Javascript tests (WebDriver / Chromium)
+ddev exec "SIMPLETEST_BASE_URL=http://localhost SIMPLETEST_DB=mysql://db:db@db/db MINK_DRIVER_ARGS_WEBDRIVER='[\"chrome\", {\"browserName\":\"chrome\",\"goog:chromeOptions\":{\"args\":[\"--disable-gpu\",\"--headless\", \"--no-sandbox\"]}}, \"http://chrome:9515\"]' vendor/bin/phpunit -c core core/tests/Drupal/FunctionalJavascriptTests/PathToTest.php"
+
+# Kernel tests (headless DB interaction)
 ddev exec "SIMPLETEST_DB=mysql://db:db@db/db vendor/bin/phpunit -c core core/tests/Drupal/KernelTests/PathToTest.php"
 
-# Unit tests
+# Unit tests (isolated PHP logic)
 ddev exec vendor/bin/phpunit -c core core/tests/Drupal/Tests/PathToTest.php
 ```
 
 ---
 
-## 4. Addressing Review Feedback & Pitfalls
+## 5. Addressing Core Pitfalls & Governance
 
-### Common Core Pitfalls
-1. **Early Bootstrap / Installer Assumptions**:
-   - Never call `User::load()` or entity storage before checking that the container and entity definition exist:
+1. **Early Bootstrap & Installer Assumptions**:
+   - Never assume entity types exist or services are registered in early bootstrap or installer contexts:
      ```php
      \Drupal::hasContainer()
      && \Drupal::hasService('entity_type.manager')
      && \Drupal::entityTypeManager()->hasDefinition('user')
      ```
-   - Classes can be autoloaded (`class_exists()`), but their entity definitions might not yet be installed in the container.
-2. **Backwards Compatibility (BC)**:
-   - Public and protected APIs cannot change signatures in minor releases without deprecation shims.
-   - Deprecate rather than remove.
+2. **Backwards Compatibility (BC) Promise**:
+   - Public and protected APIs cannot break signatures in minor releases.
+   - Deprecate parameters/classes using `@deprecated` and `@trigger_error(..., E_USER_DEPRECATED)`.
+3. **Change Records (CR)**:
+   - If an API is deprecated or added, a Change Record must be filed on `drupal.org/node/add/changenotice` before setting to RTBC.
+4. **Issue Tags**:
+   - Tag with `Novice` only if tasks are clearly defined for new contributors.
+   - Add `Needs tests`, `Needs change record`, or `Accessibility` where applicable.
 
 ---
 
-## 5. Drafting Drupal.org Issue Feedback
+## 6. Drafting Drupal.org Issue Feedback & RTBC Reviews
 
-When changes are pushed to the MR, summarize the resolution in a comment on Drupal.org:
+When changes are pushed to the MR or reviewing someone else's work:
 
-### Standard Comment Template
+### Review & Verification Template
 ```markdown
-### Summary of Changes in [MR !<mr_id>](https://git.drupalcode.org/project/drupal/-/merge_requests/<mr_id>)
+### Review of [MR !<mr_id>](https://git.drupalcode.org/project/drupal/-/merge_requests/<mr_id>)
 
-1. **Addressed Feedback from #<comment_number>**:
-   - Explanation of the root cause.
-   - Specific fix implemented.
+1. **Manual Testing Summary**:
+   - **Environment**: DDEV, PHP 8.3, MySQL 8.0, Drupal 11.x.
+   - **Steps to reproduce**:
+     1. Navigated to `/admin/structure/...`
+     2. Attempted to trigger condition...
+   - **Result Before**: Threw `TypeError: ...`
+   - **Result After**: Handled cleanly with user notification.
 
-2. **Testing & Standards**:
-   - PHPCS: Passed with 0 errors (`Drupal`, `DrupalPractice`).
-   - PHPStan: Passed with 0 errors.
-   - PHPUnit: Tests ran and passed (`<test-class-name>`, X assertions, 0 failures).
+2. **Automated Tests & Quality**:
+   - PHPCS: Passed (`Drupal`, `DrupalPractice`).
+   - PHPStan: 0 errors.
+   - PHPUnit: New test `PathToTest::testBugResolution()` added and passes.
 
-Setting status to **Needs review**.
+3. **Status Recommendation**:
+   - Marking as **Reviewed & tested by the community (RTBC)**.
 ```
