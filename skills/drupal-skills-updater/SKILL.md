@@ -25,7 +25,7 @@ When running an update cycle on this repository, inspect these primary sources:
 └──────────────────┴─────────────────┴──────────────────┴────────────────┘
 ```
 
-Consult [docs/upstream-sources.md](file:///Users/vijay/Sites/drupal-contrib-skills/docs/upstream-sources.md) and [docs/drupal-ecosystem-reference.md](file:///Users/vijay/Sites/drupal-contrib-skills/docs/drupal-ecosystem-reference.md) for full endpoint and policy details.
+Consult [docs/upstream-sources.md](./docs/upstream-sources.md) and [docs/drupal-ecosystem-reference.md](/docs/drupal-ecosystem-reference.md) for full endpoint and policy details.
 
 ---
 
