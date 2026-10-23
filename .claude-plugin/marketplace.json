@@ -1,0 +1,31 @@
+{
+  "name": "drupal-contrib-skills",
+  "owner": "vijaycs85",
+  "description": "Curated AI agent skills for Drupal Core and Contrib development, issue handling, testing, and patch maintenance.",
+  "plugins": [
+    {
+      "name": "drupal-core-issue",
+      "path": "./skills/drupal-core-issue",
+      "description": "Resolve and review Drupal Core issues, work with issue forks, run DDEV/PHPUnit tests, and format drupal.org issue comments.",
+      "group": "core"
+    },
+    {
+      "name": "drupal-contrib-issue",
+      "path": "./skills/drupal-contrib-issue",
+      "description": "Contribute to Drupal contrib modules and themes across both traditional drupal.org issue queues and modern native GitLab issues.",
+      "group": "contrib"
+    },
+    {
+      "name": "drupal-standards",
+      "path": "./skills/drupal-standards",
+      "description": "Enforce Drupal coding standards (PHPCS Drupal/DrupalPractice), PHPStan static analysis, and Drupal architectural patterns.",
+      "group": "standards"
+    },
+    {
+      "name": "drupal-patch-reroll",
+      "path": "./skills/drupal-patch-reroll",
+      "description": "Audit, fix, and reroll Drupal composer patches, discover GitLab MR diffs, and resolve reject files.",
+      "group": "maintenance"
+    }
+  ]
+}
