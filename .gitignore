@@ -5,3 +5,4 @@
 *.tar.gz
 /reference/
 node_modules/
+.env*
