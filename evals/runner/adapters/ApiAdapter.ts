@@ -1,7 +1,7 @@
 import { execSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { AgentAdapter, AgentExecutionResult } from '../types.js';
+import { AgentAdapter, AgentExecutionResult, TokenUsage } from '../types.js';
 
 export class ApiAdapter implements AgentAdapter {
   name: string;
@@ -58,7 +58,7 @@ export class ApiAdapter implements AgentAdapter {
     systemPrompt += 'Provide technical assessment, approach, pattern references, and honest verification statements.';
 
     let outputText = '';
-    let tokensUsed: number | undefined;
+    let tokensUsed: TokenUsage | undefined;
 
     try {
       const res = await this.callProvider(systemPrompt, prompt);
@@ -103,7 +103,7 @@ export class ApiAdapter implements AgentAdapter {
       diff,
       durationSeconds: Math.round(duration * 1000) / 1000,
       rawOutput: outputText,
-      tokensUsed,
+      tokens: tokensUsed,
     };
   }
 
@@ -144,7 +144,7 @@ export class ApiAdapter implements AgentAdapter {
     }
   }
 
-  private async callProvider(systemPrompt: string, userPrompt: string): Promise<{ text: string; tokens?: number }> {
+  private async callProvider(systemPrompt: string, userPrompt: string): Promise<{ text: string; tokens?: TokenUsage }> {
     if (this.provider === 'gemini') {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`;
       const payload = {
@@ -165,7 +165,15 @@ export class ApiAdapter implements AgentAdapter {
 
       const data = (await res.json()) as any;
       const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-      const tokens = data.usageMetadata?.totalTokenCount;
+      const usage = data.usageMetadata;
+      const tokens: TokenUsage | undefined = usage
+        ? {
+            promptTokens: usage.promptTokenCount ?? 0,
+            completionTokens: usage.candidatesTokenCount ?? 0,
+            totalTokens: usage.totalTokenCount ?? 0,
+          }
+        : undefined;
+
       return { text, tokens };
     }
 
@@ -194,7 +202,14 @@ export class ApiAdapter implements AgentAdapter {
 
       const data = (await res.json()) as any;
       const text = data.content?.[0]?.text ?? '';
-      const tokens = (data.usage?.input_tokens ?? 0) + (data.usage?.output_tokens ?? 0);
+      const promptTokens = data.usage?.input_tokens ?? 0;
+      const completionTokens = data.usage?.output_tokens ?? 0;
+      const tokens: TokenUsage = {
+        promptTokens,
+        completionTokens,
+        totalTokens: promptTokens + completionTokens,
+      };
+
       return { text, tokens };
     }
 
@@ -224,7 +239,14 @@ export class ApiAdapter implements AgentAdapter {
 
       const data = (await res.json()) as any;
       const text = data.choices?.[0]?.message?.content ?? '';
-      const tokens = data.usage?.total_tokens;
+      const promptTokens = data.usage?.prompt_tokens ?? 0;
+      const completionTokens = data.usage?.completion_tokens ?? 0;
+      const tokens: TokenUsage = {
+        promptTokens,
+        completionTokens,
+        totalTokens: data.usage?.total_tokens ?? (promptTokens + completionTokens),
+      };
+
       return { text, tokens };
     }
 
@@ -234,7 +256,7 @@ export class ApiAdapter implements AgentAdapter {
   private buildWorkspaceContext(workspaceDir: string): string {
     let context = 'Files in workspace:\n';
     try {
-      const files = execSync('find . -maxdepth 4 -not -path "*/.*" | sort', {
+      const files = execSync('find . -maxdepth 5 -not -path "*/.*" | sort', {
         cwd: workspaceDir,
         encoding: 'utf-8',
       });
@@ -243,20 +265,41 @@ export class ApiAdapter implements AgentAdapter {
       // Ignore
     }
 
-    const composerJson = path.join(workspaceDir, 'composer.json');
-    if (fs.existsSync(composerJson)) {
-      context += '--- composer.json ---\n' + fs.readFileSync(composerJson, 'utf-8') + '\n';
-    }
+    // Recursively read all small text files (patches, source code, configs, module info)
+    context += '--- Workspace File Contents ---\n';
+    const textExtensions = ['.json', '.yml', '.yaml', '.php', '.patch', '.info.yml', '.md', '.module'];
 
-    const composerLock = path.join(workspaceDir, 'composer.lock');
-    if (fs.existsSync(composerLock)) {
-      try {
-        const lock = JSON.parse(fs.readFileSync(composerLock, 'utf-8'));
-        const pkgs = Object.fromEntries((lock.packages ?? []).map((p: any) => [p.name, p.version]));
-        context += '--- composer.lock packages ---\n' + JSON.stringify(pkgs, null, 2) + '\n';
-      } catch {
-        // Ignore
+    const readFilesRecursively = (dir: string, baseDir: string) => {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.name.startsWith('.') || entry.name === 'vendor') continue;
+        const fullPath = path.join(dir, entry.name);
+        const relPath = path.relative(baseDir, fullPath);
+
+        if (entry.isDirectory()) {
+          readFilesRecursively(fullPath, baseDir);
+        } else if (entry.isFile()) {
+          const isText = textExtensions.some((ext) => entry.name.endsWith(ext));
+          if (isText) {
+            try {
+              const stat = fs.statSync(fullPath);
+              if (stat.size <= 30000) {
+                // Max 30KB per file
+                const content = fs.readFileSync(fullPath, 'utf-8');
+                context += `\n[File: ${relPath}]\n${content}\n`;
+              }
+            } catch {
+              // Ignore read errors
+            }
+          }
+        }
       }
+    };
+
+    try {
+      readFilesRecursively(workspaceDir, workspaceDir);
+    } catch {
+      // Ignore
     }
 
     return context;

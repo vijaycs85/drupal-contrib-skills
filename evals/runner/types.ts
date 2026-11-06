@@ -1,3 +1,9 @@
+export interface TokenUsage {
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+}
+
 export interface AgentExecutionResult {
   outputText: string;
   exitCode: number;
@@ -7,7 +13,7 @@ export interface AgentExecutionResult {
   durationSeconds: number;
   rawOutput: string;
   errorMessage?: string;
-  tokensUsed?: number;
+  tokens?: TokenUsage;
 }
 
 export interface AgentAdapter {
@@ -72,7 +78,7 @@ export interface EvalTrialResult {
   trial: number;
   condition: 'with-skill' | 'baseline-no-skill';
   duration: number;
-  tokens?: number;
+  tokens?: TokenUsage;
   executable: ExecutableGradingResult;
   rubric: RubricScore;
   modifiedFiles: string[];
@@ -96,5 +102,8 @@ export interface EvalSuiteResult {
     totalEvaluations: number;
     executablePassed: number;
     averageScore: number;
+    totalTokens: number;
+    withSkillAvgTokens: number;
+    baselineAvgTokens: number;
   };
 }

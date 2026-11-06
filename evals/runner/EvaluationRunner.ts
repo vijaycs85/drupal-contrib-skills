@@ -56,6 +56,11 @@ export class EvaluationRunner {
 
     let totalScore = 0;
     let evalCount = 0;
+    let totalTokens = 0;
+    let withSkillTokens = 0;
+    let withSkillCount = 0;
+    let baselineTokens = 0;
+    let baselineCount = 0;
 
     for (const testCase of cases) {
       const caseResult: EvalCaseResult = {
@@ -81,10 +86,22 @@ export class EvaluationRunner {
         }
         totalScore += trialRes.rubric.normalizedScore;
 
+        if (trialRes.tokens) {
+          totalTokens += trialRes.tokens.totalTokens;
+          withSkillTokens += trialRes.tokens.totalTokens;
+          withSkillCount++;
+        }
+
         // Run baseline without skill if requested
         if (runBaseline) {
           const baselineRes = await this.runSingleTrial(testCase, {}, 'baseline-no-skill', trial);
           caseResult.trials.push(baselineRes);
+
+          if (baselineRes.tokens) {
+            totalTokens += baselineRes.tokens.totalTokens;
+            baselineTokens += baselineRes.tokens.totalTokens;
+            baselineCount++;
+          }
         }
       }
 
@@ -94,6 +111,11 @@ export class EvaluationRunner {
     suiteResult.summary.totalEvaluations = evalCount;
     suiteResult.summary.averageScore =
       evalCount > 0 ? Math.round((totalScore / evalCount) * 10) / 10 : 0;
+    suiteResult.summary.totalTokens = totalTokens;
+    suiteResult.summary.withSkillAvgTokens =
+      withSkillCount > 0 ? Math.round(withSkillTokens / withSkillCount) : 0;
+    suiteResult.summary.baselineAvgTokens =
+      baselineCount > 0 ? Math.round(baselineTokens / baselineCount) : 0;
 
     return suiteResult;
   }
@@ -156,7 +178,7 @@ export class EvaluationRunner {
         trial: trialNum,
         condition,
         duration: execResult.durationSeconds,
-        tokens: execResult.tokensUsed,
+        tokens: execResult.tokens,
         executable,
         rubric,
         modifiedFiles: execResult.modifiedFiles,

@@ -148,11 +148,23 @@ function formatMarkdownReport(results: EvalSuiteResult): string {
   md += `**Adapter:** \`${results.adapter}\`  \n`;
   md += `**Total Cases:** ${results.totalCases}  \n`;
   md += `**Average Rubric Score:** ${results.summary.averageScore} / 100  \n`;
-  md += `**Executable Checks Pass Rate:** ${results.summary.executablePassed} / ${results.summary.totalEvaluations}\n\n`;
+  md += `**Executable Checks Pass Rate:** ${results.summary.executablePassed} / ${results.summary.totalEvaluations}  \n`;
+
+  if (results.summary.totalTokens > 0) {
+    md += `**Total Tokens Consumed:** ${results.summary.totalTokens.toLocaleString()}  \n`;
+    if (results.summary.baselineAvgTokens > 0) {
+      const delta = results.summary.withSkillAvgTokens - results.summary.baselineAvgTokens;
+      const pct = Math.round((delta / results.summary.baselineAvgTokens) * 100);
+      md += `**Skill Prompt Overhead:** ${delta >= 0 ? '+' : ''}${delta.toLocaleString()} tokens/trial (${delta >= 0 ? '+' : ''}${pct}% vs baseline)  \n`;
+      md += `  - With-Skill Avg: ${results.summary.withSkillAvgTokens.toLocaleString()} tokens  \n`;
+      md += `  - Baseline Avg: ${results.summary.baselineAvgTokens.toLocaleString()} tokens  \n`;
+    }
+  }
+  md += '\n';
 
   md += '## Case Breakdown\n\n';
-  md += '| Skill | Case | Condition | Executable Checks | Rubric Score | Duration |\n';
-  md += '| :--- | :--- | :--- | :--- | :--- | :--- |\n';
+  md += '| Skill | Case | Condition | Executable Checks | Rubric Score | Duration | Tokens (In / Out) |\n';
+  md += '| :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n';
 
   for (const c of results.cases) {
     for (const t of c.trials) {
@@ -164,7 +176,10 @@ function formatMarkdownReport(results: EvalSuiteResult): string {
       const score = `${t.rubric.normalizedScore} / 100`;
       const duration = `${t.duration}s`;
       const totalChecks = t.executable.passedCount + t.executable.failedCount;
-      md += `| \`${c.skill}\` | \`${c.name}\` | \`${t.condition}\` | ${execStatus} (${t.executable.passedCount}/${totalChecks}) | ${score} | ${duration} |\n`;
+      const tokenStr = t.tokens
+        ? `${t.tokens.totalTokens.toLocaleString()} (${t.tokens.promptTokens.toLocaleString()} / ${t.tokens.completionTokens.toLocaleString()})`
+        : 'N/A';
+      md += `| \`${c.skill}\` | \`${c.name}\` | \`${t.condition}\` | ${execStatus} (${t.executable.passedCount}/${totalChecks}) | ${score} | ${duration} | ${tokenStr} |\n`;
     }
   }
 
