@@ -13,6 +13,7 @@ Compatible with [skills.sh](https://skills.sh), [Agent Skills](https://agentskil
 
 | Skill | Group | Description |
 | :--- | :--- | :--- |
+| **`drupal-solution-api-reference`** | `architecture`, `core`, `contrib` | Choose and implement Drupal solutions using project capabilities, locked versions, and verified source patterns across Core, Contrib, recipes, and integrations. |
 | **`drupal-core-issue`** | `core`, `review` | Workflow for resolving and reviewing Drupal Core issue tickets, issue forks, DDEV PHPUnit tests, Conventional Commits with `By:` trailers, and drupal.org comment drafts. |
 | **`drupal-contrib-issue`** | `contrib`, `review` | Contrib workflow supporting both traditional Drupal.org issue queues and modern native GitLab issues (`git.drupalcode.org/project/<module>/-/issues`). |
 | **`drupal-standards`** | `standards`, `core`, `contrib` | Enforces Drupal coding standards (PHPCS `Drupal`, `DrupalPractice`), PHPStan Drupal static analysis, PHP 8 `#[Hook]` & plugin attributes, and strict config schemas. |
@@ -63,6 +64,9 @@ ln -sfn ../vendor/vijaycs85/drupal-contrib-skills/skills .agents/skills
 Install a tailored bundle based on your role in the Drupal ecosystem:
 
 ```bash
+# For Solution Architecture, capability discovery, and API verification
+npx skills add vijaycs85/drupal-contrib-skills --group architecture
+
 # For Drupal Core contributors and reviewers
 npx skills add vijaycs85/drupal-contrib-skills --group core
 

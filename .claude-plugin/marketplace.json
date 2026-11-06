@@ -4,6 +4,12 @@
   "description": "Comprehensive suite of AI agent skills for Drupal Core, Contrib modules, themes, recipes, issue handling, testing, security, and project governance.",
   "plugins": [
     {
+      "name": "drupal-solution-api-reference",
+      "path": "./skills/drupal-solution-api-reference",
+      "description": "Choose and implement Drupal solutions using project capabilities, locked versions, and verified source patterns across Core, Contrib, recipes, and integrations.",
+      "group": "architecture"
+    },
+    {
       "name": "drupal-core-issue",
       "path": "./skills/drupal-core-issue",
       "description": "Resolve and review Drupal Core issues, work with issue forks, run DDEV/PHPUnit tests, Conventional Commits with By: trailers, and format drupal.org issue comments.",
