@@ -1,0 +1,1 @@
+Inspect our project configuration and dependencies for 'sample_pkg'. State whether it is safe to immediately use v2 API methods, identify any discrepancy between files, and recommend how to proceed safely.

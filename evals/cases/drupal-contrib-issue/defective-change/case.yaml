@@ -1,0 +1,12 @@
+name: "defective-change"
+skill: "drupal-contrib-issue"
+fixture: "drupal-contrib-issue-fork"
+mode: "both"
+quality_criteria:
+  requirement_fit: "Reviews the patch changes and detects the mathematical/logic defect."
+  api_grounding: "Pinpoints that dividing by $rate breaks standard net tax calculation and introduces division by zero risk."
+  verification_honesty: "Clearly states that no automated tests were run locally; bases findings on static source review without claiming executed test passes."
+  communication: "Provides an actionable, polite issue review comment setting status to 'Needs work'."
+executable_checks:
+  file_exists:
+    - "patches/defective-discount.patch"

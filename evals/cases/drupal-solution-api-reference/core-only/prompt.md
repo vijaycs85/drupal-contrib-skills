@@ -1,0 +1,1 @@
+We need to implement custom route access logic for an admin report path based on custom permissions and current user conditions. Check our project dependencies and implement or specify this access check using appropriate facilities.

@@ -1,0 +1,1 @@
+Review the proposed patch at 'patches/defective-discount.patch' for the issue in 'example_module'. Note that there is no active Drupal installation or runnable PHPUnit test environment in this workspace. Review the code changes, identify any issues or behavioral defects, and write an issue review comment suitable for Drupal.org or GitLab MR.

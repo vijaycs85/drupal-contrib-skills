@@ -1,0 +1,5 @@
+name: 'Sample Package'
+type: module
+description: 'Demonstrates version divergence between composer.lock and installed filesystem'
+core_version_requirement: ^10
+version: '1.0.0'

@@ -1,0 +1,13 @@
+{
+    "_readme": ["This file locks the dependencies of your project"],
+    "packages": [
+        {
+            "name": "drupal/core-recommended",
+            "version": "10.3.0"
+        },
+        {
+            "name": "drupal/sample_pkg",
+            "version": "2.0.0"
+        }
+    ]
+}

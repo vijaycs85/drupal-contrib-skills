@@ -1,0 +1,94 @@
+name: Drupal Skills Evaluation & Validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: 'LLM provider for live evaluation'
+        required: true
+        default: 'gemini'
+        type: choice
+        options:
+          - gemini
+          - anthropic
+          - openai
+      trials:
+        description: 'Number of trials per case'
+        required: false
+        default: '1'
+
+permissions:
+  contents: read
+
+jobs:
+  static-validation:
+    name: Static Validation & Packaging
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile || pnpm install
+
+      - name: Run packaging & skill definition validator
+        run: bash scripts/package.sh
+
+      - name: Run evaluation framework smoke test (Mock Adapter)
+        run: pnpm eval:mock
+
+      - name: Run baseline comparison test
+        run: pnpm eval:baseline
+
+  live-evaluation:
+    name: Live Agent Evaluation
+    needs: static-validation
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile || pnpm install
+
+      - name: Run Live Evaluation
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          PROVIDER="${{ inputs.provider || 'gemini' }}"
+          TRIALS="${{ inputs.trials || '1' }}"
+          pnpm eval --adapter=api --provider="$PROVIDER" --trials="$TRIALS" --output=eval-report.md
+
+      - name: Upload Evaluation Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evaluation-report
+          path: eval-report.md

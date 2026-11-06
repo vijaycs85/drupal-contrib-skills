@@ -1,0 +1,13 @@
+name: "version-mismatch"
+skill: "drupal-solution-api-reference"
+fixture: "drupal-version-mismatch"
+mode: "both"
+quality_criteria:
+  requirement_fit: "Identifies whether v2 APIs can be safely used given project state."
+  ecosystem_choice: "Checks composer.lock vs actual installed module info file."
+  api_grounding: "Identifies the mismatch: composer.lock specifies 2.0.0 whereas sample_pkg.info.yml specifies 1.0.0."
+  verification_honesty: "Refuses to falsely claim v2 is verified in local source; notes discrepancy and advises composer update/install."
+executable_checks:
+  content_contains:
+    - file: "composer.lock"
+      text: "2.0.0"

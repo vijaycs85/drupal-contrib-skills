@@ -1,0 +1,5 @@
+name: 'Example Tax Module'
+type: module
+description: 'Synthetic contrib module for issue review testing'
+core_version_requirement: ^10 || ^11
+version: '1.0.0'

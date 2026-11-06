@@ -1,0 +1,12 @@
+name: "clean-change"
+skill: "drupal-contrib-issue"
+fixture: "drupal-contrib-issue-fork"
+mode: "both"
+quality_criteria:
+  requirement_fit: "Reviews the zero-rate handling patch and confirms the logic is sound."
+  api_grounding: "Identifies that returning $total when rate is 0.0 prevents division by zero without regressing non-zero rates."
+  verification_honesty: "Accurately acknowledges absence of live test runner; avoids claiming PHPUnit passed locally."
+  communication: "Provides constructive review comment stating code looks clean and proposing CI / manual confirmation."
+executable_checks:
+  file_exists:
+    - "patches/clean-discount.patch"

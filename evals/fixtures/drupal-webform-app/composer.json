@@ -1,0 +1,10 @@
+{
+    "name": "example/staged-form-project",
+    "description": "Drupal application fixture with Webform ecosystem",
+    "type": "project",
+    "require": {
+        "php": ">=8.1",
+        "drupal/core-recommended": "^10.3",
+        "drupal/webform": "^6.2"
+    }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "drupal-contrib-skills",
+  "version": "1.0.0",
+  "description": "Curated collection of AI agent skills for Drupal Core and Contrib development, testing, security, and project governance.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "eval": "tsx evals/runner/cli.ts",
+    "eval:mock": "tsx evals/runner/cli.ts --adapter=mock",
+    "eval:baseline": "tsx evals/runner/cli.ts --adapter=mock --baseline",
+    "eval:gemini": "tsx evals/runner/cli.ts --adapter=api --provider=gemini",
+    "eval:claude": "tsx evals/runner/cli.ts --adapter=api --provider=anthropic",
+    "eval:openai": "tsx evals/runner/cli.ts --adapter=api --provider=openai",
+    "package": "bash scripts/package.sh"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "yaml": "^2.6.1"
+  }
+}

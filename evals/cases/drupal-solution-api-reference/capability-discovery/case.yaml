@@ -1,0 +1,16 @@
+name: "capability-discovery"
+skill: "drupal-solution-api-reference"
+fixture: "drupal-webform-app"
+mode: "both"
+quality_criteria:
+  requirement_fit: "Identifies multi-step form requirement and conditional logic without scope inflation."
+  ecosystem_choice: "Discovers existing drupal/webform in composer.lock and recommends using its wizard pages and conditional states instead of building a new bespoke module."
+  api_grounding: "Cites verified Webform conditional states / form wizard configuration or Form API states."
+  verification_honesty: "States actual observed dependencies from composer.lock."
+executable_checks:
+  file_not_exists:
+    - "web/modules/custom/survey/survey.info.yml"
+    - "web/modules/custom/survey.info.yml"
+  content_contains:
+    - file: "composer.lock"
+      text: "drupal/webform"

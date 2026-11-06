@@ -1,0 +1,1 @@
+We need to build a multi-step user survey where questions on step 2 change dynamically depending on how the user answered step 1. Assess our project dependencies and architecture, determine whether we should write a custom module or reuse existing capabilities, and provide the technical solution.

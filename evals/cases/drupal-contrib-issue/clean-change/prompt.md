@@ -1,0 +1,1 @@
+Review the proposed patch at 'patches/clean-discount.patch' for 'example_module'. Note that there is no running test runner or web environment here. Inspect the code changes, check for regressions, and draft an issue review comment stating findings and remaining verification limits honestly.

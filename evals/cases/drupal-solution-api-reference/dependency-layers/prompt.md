@@ -1,0 +1,1 @@
+We need to create a custom Webform handler plugin for our site that sends an event or logs submission data to the logger upon form completion. Implement the plugin following the owning ecosystem's extension point and dependency injection standards.

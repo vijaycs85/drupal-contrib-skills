@@ -1,0 +1,14 @@
+diff --git a/src/Service/TaxCalculator.php b/src/Service/TaxCalculator.php
+--- a/src/Service/TaxCalculator.php
++++ b/src/Service/TaxCalculator.php
+@@ -10,6 +10,6 @@ class TaxCalculator
+     public function calculateNet(float $total, float $rate): float
+     {
+-        if ($rate < 0.0) {
++        if ($rate <= 0.0) {
+             throw new \InvalidArgumentException('Tax rate cannot be negative.');
+         }
+-        return $total / (1.0 + $rate);
++        return $total / $rate; // BUG: Divides total by rate instead of (1 + rate), breaking standard net calculation and crashing if rate=0
+     }
+ }

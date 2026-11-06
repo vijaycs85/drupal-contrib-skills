@@ -1,0 +1,11 @@
+name: "dependency-layers"
+skill: "drupal-solution-api-reference"
+fixture: "drupal-webform-app"
+mode: "both"
+quality_criteria:
+  requirement_fit: "Implements Webform submission logging using plugin extension contract."
+  ecosystem_choice: "Identifies WebformHandlerBase / WebformHandlerInterface as the correct extension contract instead of procedural form alters."
+  api_grounding: "Properly references WebformHandler plugin annotation/attribute and ContainerFactoryPluginInterface."
+  maintainability_semantics: "Uses dependency injection rather than \\Drupal::logger() procedural calls."
+executable_checks:
+  php_syntax_check: true

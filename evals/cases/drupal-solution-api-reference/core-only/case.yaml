@@ -1,0 +1,13 @@
+name: "core-only"
+skill: "drupal-solution-api-reference"
+fixture: "drupal-core-clean"
+mode: "both"
+quality_criteria:
+  requirement_fit: "Provides route access checking using core access facilities."
+  ecosystem_choice: "Uses Drupal Core AccessCheckInterface / AccessResult directly; does not require external packages."
+  api_grounding: "Grounds implementation in Drupal\\Core\\Routing\\Access\\AccessInterface and Drupal\\Core\\Access\\AccessResult."
+  verification_honesty: "Accurately notes clean Drupal 10.3 Core environment without unnecessary dependencies."
+executable_checks:
+  content_not_contains:
+    - file: "composer.json"
+      text: "drupal/permission_by_term"
