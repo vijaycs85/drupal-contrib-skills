@@ -49,7 +49,7 @@ Usage:
 Options:
   --adapter=TYPE        Adapter type: 'mock' (default), 'api', or 'subprocess'
   --provider=NAME       LLM provider for API adapter / judge ('gemini', 'anthropic', 'openai')
-  --model=NAME          Model name (e.g. 'gemini-2.5-flash', 'claude-3-5-sonnet-latest')
+  --model=NAME          Model name (e.g. 'gemini-3.8-flash', 'claude-3-5-sonnet-latest')
   --command=CMD         Subprocess command template (e.g. 'claude -p "{prompt}"')
   --skill=NAME          Filter evaluation cases by skill name
   --case=NAME           Filter evaluation by specific case name

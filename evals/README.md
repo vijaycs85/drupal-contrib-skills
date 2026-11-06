@@ -68,7 +68,7 @@ pnpm eval --case=capability-discovery
 ### 4. Running with Live LLMs (Gemini, Claude, OpenAI)
 Set your API key in environment variables:
 ```bash
-# Using Google Gemini (e.g. Gemini 2.5 Flash)
+# Using Google Gemini (e.g. Gemini 3.8 Flash)
 export GEMINI_API_KEY="your-gemini-key"
 pnpm eval:gemini
 

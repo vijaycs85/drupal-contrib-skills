@@ -134,13 +134,13 @@ export class ApiAdapter implements AgentAdapter {
   private defaultModel(provider: string): string {
     switch (provider) {
       case 'gemini':
-        return 'gemini-2.5-flash';
+        return 'gemini-3.8-flash';
       case 'anthropic':
         return 'claude-3-5-sonnet-latest';
       case 'openai':
         return 'gpt-4o';
       default:
-        return 'gemini-2.5-flash';
+        return 'gemini-3.8-flash';
     }
   }
 
