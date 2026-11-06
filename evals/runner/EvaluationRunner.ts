@@ -114,6 +114,31 @@ export class EvaluationRunner {
         { case: testCase.name, condition }
       );
 
+      if (execResult.errorMessage) {
+        return {
+          trial: trialNum,
+          condition,
+          duration: execResult.durationSeconds,
+          executable: {
+            passed: false,
+            passedCount: 0,
+            failedCount: 1,
+            checks: [{
+              name: 'agent_execution',
+              passed: false,
+              message: execResult.errorMessage,
+            }],
+          },
+          rubric: {
+            normalizedScore: 0,
+            dimensions: {},
+            overallFeedback: `Execution failed: ${execResult.errorMessage}`,
+          },
+          modifiedFiles: [],
+          errorMessage: execResult.errorMessage,
+        };
+      }
+
       const executable = this.executableGrader.grade(
         sandboxDir,
         testCase.config.executable_checks,

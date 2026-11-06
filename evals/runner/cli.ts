@@ -70,7 +70,18 @@ let adapter: AgentAdapter;
 if (adapterType === 'subprocess') {
   adapter = new SubprocessAdapter(flags.command ? String(flags.command) : undefined);
 } else if (adapterType === 'api') {
-  adapter = new ApiAdapter(provider as any, undefined, model);
+  const chosenProvider = (provider ?? (process.env.GEMINI_API_KEY ? 'gemini' : process.env.ANTHROPIC_API_KEY ? 'anthropic' : process.env.OPENAI_API_KEY ? 'openai' : 'gemini')) as 'gemini' | 'anthropic' | 'openai';
+  const envVar = chosenProvider === 'gemini' ? 'GEMINI_API_KEY' : chosenProvider === 'anthropic' ? 'ANTHROPIC_API_KEY' : 'OPENAI_API_KEY';
+  
+  if (!process.env[envVar]) {
+    console.error(`\n❌ Error: Missing API key for live evaluation with ${chosenProvider}.`);
+    console.error(`Please set the ${envVar} environment variable:`);
+    console.error(`  export ${envVar}="your-key"\n`);
+    console.error(`To run an offline mock evaluation instead without an API key, run:`);
+    console.error(`  pnpm eval:mock\n`);
+    process.exit(1);
+  }
+  adapter = new ApiAdapter(chosenProvider, undefined, model);
 } else {
   adapter = new MockAdapter();
 }
@@ -125,7 +136,11 @@ function formatMarkdownReport(results: EvalSuiteResult): string {
 
   for (const c of results.cases) {
     for (const t of c.trials) {
-      const execStatus = t.executable.passed ? '✅ Passed' : '❌ Failed';
+      const execStatus = t.errorMessage
+        ? `❌ Error (${t.errorMessage})`
+        : t.executable.passed
+        ? '✅ Passed'
+        : '❌ Failed';
       const score = `${t.rubric.normalizedScore} / 100`;
       const duration = `${t.duration}s`;
       const totalChecks = t.executable.passedCount + t.executable.failedCount;
